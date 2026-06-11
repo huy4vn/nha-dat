@@ -20,6 +20,7 @@ export default function EditHousePage() {
     description: '',
     price: '',
     area: '',
+    type: 'Chung cư mini',
     imageUrls: [] as string[],
   });
 
@@ -41,6 +42,7 @@ export default function EditHousePage() {
             description: data.description || '',
             price: data.price ? Number(data.price).toLocaleString('vi-VN') : '',
             area: data.area || '',
+            type: data.type || 'Chung cư mini',
             imageUrls: images,
           });
         } else {
@@ -127,6 +129,7 @@ export default function EditHousePage() {
         description: formData.description,
         price: Number(formData.price.replace(/\D/g, '')),
         area: formData.area,
+        type: formData.type,
         imageUrls: formData.imageUrls,
       });
       router.push('/');
@@ -184,6 +187,22 @@ export default function EditHousePage() {
           />
         </div>
 
+        <div style={{ marginBottom: '1.5rem' }}>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Loại nhà</label>
+          <select 
+            name="type" 
+            value={formData.type}
+            onChange={handleChange as any}
+            style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+          >
+            <option value="Chung cư mini">Chung cư mini</option>
+            <option value="Chung cư">Chung cư</option>
+            <option value="Nhà đất">Nhà đất</option>
+            <option value="Phòng trọ">Phòng trọ</option>
+            <option value="Khác">Khác</option>
+          </select>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4" style={{ marginBottom: '1.5rem' }}>
           <div>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Giá thuê (VNĐ)</label>
@@ -207,7 +226,6 @@ export default function EditHousePage() {
             <input 
               type="text" 
               name="area" 
-              required
               value={formData.area}
               onChange={handleChange}
               style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }} 

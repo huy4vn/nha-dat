@@ -12,6 +12,7 @@ export interface House {
   description: string;
   price: number;
   area: string;
+  type?: string;
   imageUrl?: string;
   imageUrls?: string[];
   ratings: {
@@ -124,11 +125,22 @@ export default function HouseCard({ house }: HouseCardProps) {
         )}
 
         <div className="house-details flex justify-between items-center" style={{ marginTop: 'auto', paddingTop: '1rem' }}>
-          <div className="house-price">
-            {formatPrice(house.price)}<span style={{ fontSize: '0.875rem', color: 'var(--text-tertiary)', fontWeight: 'normal' }}>/tháng</span>
+          <div>
+            <div className="house-price">
+              {formatPrice(house.price)}<span style={{ fontSize: '0.875rem', color: 'var(--text-tertiary)', fontWeight: 'normal' }}>/tháng</span>
+            </div>
+            {house.type && (
+              <span style={{ display: 'inline-block', marginTop: '0.25rem', padding: '0.1rem 0.5rem', backgroundColor: 'var(--bg-tertiary)', color: 'var(--accent-primary)', fontSize: '0.75rem', borderRadius: '1rem', fontWeight: 500 }}>
+                {house.type}
+              </span>
+            )}
           </div>
-          <div className="house-area">
-            {house.area} {String(house.area).match(/\d$/) ? 'm²' : ''}
+          <div className="house-area" style={{ textAlign: 'right' }}>
+            {house.area && house.area.trim() !== '' ? (
+              <>{house.area} {String(house.area).match(/\d$/) ? 'm²' : ''}</>
+            ) : (
+              <span style={{ fontSize: '0.875rem', color: 'var(--text-tertiary)' }}>Chưa rõ DT</span>
+            )}
           </div>
         </div>
       </div>
