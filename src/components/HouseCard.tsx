@@ -13,6 +13,7 @@ export interface House {
   price: number;
   area: string;
   type?: string;
+  phone?: string;
   imageUrl?: string;
   imageUrls?: string[];
   ratings: {
@@ -96,8 +97,13 @@ export default function HouseCard({ house }: HouseCardProps) {
         </div>
       </div>
       <div className="house-content">
-        <h3 className="house-title">📍 {house.address}</h3>
-        <p className="house-address" style={{ marginTop: '0.25rem', whiteSpace: 'normal', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+        <h3 className="house-title" style={{ marginBottom: '0.25rem' }}>📍 {house.address}</h3>
+        {house.phone && (
+          <div style={{ marginBottom: '0.5rem', color: 'var(--accent-primary)', fontWeight: 500, fontSize: '0.875rem' }}>
+            📞 <a href={`tel:${house.phone}`} style={{ textDecoration: 'none', color: 'inherit' }}>{house.phone}</a>
+          </div>
+        )}
+        <p className="house-address" style={{ marginTop: '0', whiteSpace: 'normal', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
           {house.description}
         </p>
         

@@ -15,6 +15,7 @@ export default function AddHousePage() {
     description: '',
     price: '',
     area: '',
+    phone: '',
     type: 'Nhà đất',
     imageUrls: [] as string[],
   });
@@ -88,6 +89,7 @@ export default function AddHousePage() {
         description: formData.description,
         price: Number(formData.price.replace(/\D/g, '')),
         area: formData.area,
+        phone: formData.phone,
         type: formData.type,
         imageUrls: formData.imageUrls,
         ratings: {
@@ -115,17 +117,30 @@ export default function AddHousePage() {
           💡 <strong>Mẹo:</strong> Bạn có thể nhấn <code>Ctrl + V</code> ở bất cứ đâu trên biểu mẫu này để dán ảnh trực tiếp từ bộ nhớ tạm!
         </div>
 
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Địa chỉ</label>
-          <input 
-            type="text" 
-            name="address" 
-            required
-            value={formData.address}
-            onChange={handleChange}
-            style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }} 
-            placeholder="VD: Hẻm 123 Đường ABC..."
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4" style={{ marginBottom: '1.5rem' }}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Địa chỉ</label>
+            <input 
+              type="text" 
+              name="address" 
+              required
+              value={formData.address}
+              onChange={handleChange}
+              style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }} 
+              placeholder="VD: Hẻm 123 Đường ABC..."
+            />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>SĐT Liên hệ</label>
+            <input 
+              type="tel" 
+              name="phone" 
+              value={formData.phone}
+              onChange={handleChange}
+              style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }} 
+              placeholder="VD: 0901234567"
+            />
+          </div>
         </div>
 
         <div style={{ marginBottom: '1.5rem' }}>
