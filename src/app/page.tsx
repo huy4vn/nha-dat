@@ -10,6 +10,9 @@ export default function Home() {
   const [houses, setHouses] = useState<House[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const [filterType, setFilterType] = useState<string>('All');
+  const [sortBy, setSortBy] = useState<string>('newest');
 
   useEffect(() => {
     const fetchHouses = async () => {
@@ -56,9 +59,25 @@ export default function Home() {
     );
   }
 
+  const filteredAndSortedHouses = [...houses]
+    .filter(house => {
+      if (filterType === 'All') return true;
+      return house.type === filterType;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'priceAsc') return a.price - b.price;
+      if (sortBy === 'priceDesc') return b.price - a.price;
+      if (sortBy === 'ratingDesc') {
+        const ratingA = a.ratings ? (a.ratings.price + a.ratings.location + a.ratings.area) / 3 : 0;
+        const ratingB = b.ratings ? (b.ratings.price + b.ratings.location + b.ratings.area) / 3 : 0;
+        return ratingB - ratingA;
+      }
+      return 0;
+    });
+
   return (
     <div>
-      <div className="flex justify-between items-center" style={{ marginBottom: '2rem' }}>
+      <div className="flex justify-between items-center" style={{ marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Danh sách nhà đang xem xét</h1>
           <p style={{ color: 'var(--text-secondary)' }}>Bạn đã lưu {houses.length} căn nhà.</p>
@@ -68,8 +87,42 @@ export default function Home() {
         </Link>
       </div>
 
+      {houses.length > 0 && (
+        <div className="flex gap-4 items-center" style={{ marginBottom: '2rem', backgroundColor: 'var(--bg-secondary)', padding: '1rem', borderRadius: 'var(--radius-md)', flexWrap: 'wrap' }}>
+          <div className="flex items-center gap-2">
+            <label style={{ fontWeight: 500, fontSize: '0.875rem' }}>Lọc loại nhà:</label>
+            <select 
+              value={filterType} 
+              onChange={(e) => setFilterType(e.target.value)}
+              style={{ padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+            >
+              <option value="All">Tất cả</option>
+              <option value="Nhà đất">Nhà đất</option>
+              <option value="Chung cư mini">Chung cư mini</option>
+              <option value="Chung cư">Chung cư</option>
+              <option value="Phòng trọ">Phòng trọ</option>
+              <option value="Khác">Khác</option>
+            </select>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <label style={{ fontWeight: 500, fontSize: '0.875rem' }}>Sắp xếp theo:</label>
+            <select 
+              value={sortBy} 
+              onChange={(e) => setSortBy(e.target.value)}
+              style={{ padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+            >
+              <option value="newest">Mặc định</option>
+              <option value="priceAsc">Giá: Thấp đến Cao</option>
+              <option value="priceDesc">Giá: Cao đến Thấp</option>
+              <option value="ratingDesc">Đánh giá: Tốt nhất</option>
+            </select>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {houses.map(house => (
+        {filteredAndSortedHouses.map(house => (
           <HouseCard key={house.id} house={house} />
         ))}
       </div>
