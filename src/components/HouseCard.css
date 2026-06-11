@@ -22,6 +22,27 @@
   position: relative;
 }
 
+.house-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+  z-index: 5;
+  text-decoration: none;
+}
+
+.house-images-wrapper {
+  position: relative;
+}
+
+.house-images-wrapper:hover .house-overlay {
+  opacity: 1;
+}
+
 .house-rating {
   position: absolute;
   top: 1rem;

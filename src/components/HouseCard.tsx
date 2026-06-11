@@ -71,7 +71,7 @@ export default function HouseCard({ house }: HouseCardProps) {
         ✏️ Sửa
       </Link>
       
-      <div style={{ position: 'relative' }}>
+      <div className="house-images-wrapper">
         <div className="house-images-container" style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}>
           {images.map((img, idx) => (
             <div 
@@ -92,9 +92,13 @@ export default function HouseCard({ house }: HouseCardProps) {
           </div>
         )}
 
-        <div className="house-rating" style={{ position: 'absolute', top: '1rem', right: '1rem', cursor: 'pointer' }} onClick={() => setIsEditingRating(!isEditingRating)}>
+        <div className="house-rating" style={{ position: 'absolute', top: '1rem', right: '1rem', cursor: 'pointer', zIndex: 10 }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsEditingRating(!isEditingRating); }}>
           ⭐ {averageRating > 0 ? averageRating.toFixed(1) : 'Chưa chấm'} ✎
         </div>
+
+        <Link href={`/house/${house.id}`} className="house-overlay">
+          <span className="btn btn-primary" style={{ pointerEvents: 'none', boxShadow: 'var(--shadow-lg)' }}>Xem chi tiết</span>
+        </Link>
       </div>
       <div className="house-content">
         <h3 className="house-title" style={{ marginBottom: '0.25rem' }}>📍 {house.address}</h3>
@@ -130,7 +134,7 @@ export default function HouseCard({ house }: HouseCardProps) {
           </div>
         )}
 
-        <div className="house-details flex justify-between items-center" style={{ marginTop: 'auto', paddingTop: '1rem' }}>
+        <div className="house-details flex justify-between items-center" style={{ marginTop: 'auto', paddingTop: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
           <div>
             <div className="house-price">
               {formatPrice(house.price)}<span style={{ fontSize: '0.875rem', color: 'var(--text-tertiary)', fontWeight: 'normal' }}>/tháng</span>
@@ -141,12 +145,14 @@ export default function HouseCard({ house }: HouseCardProps) {
               </span>
             )}
           </div>
-          <div className="house-area" style={{ textAlign: 'right' }}>
-            {house.area && house.area.trim() !== '' ? (
-              <>{house.area} {String(house.area).match(/\d$/) ? 'm²' : ''}</>
-            ) : (
-              <span style={{ fontSize: '0.875rem', color: 'var(--text-tertiary)' }}>Chưa rõ DT</span>
-            )}
+          <div className="house-area flex flex-col items-end gap-2" style={{ textAlign: 'right' }}>
+            <div>
+              {house.area && house.area.trim() !== '' ? (
+                <>{house.area} {String(house.area).match(/\d$/) ? 'm²' : ''}</>
+              ) : (
+                <span style={{ fontSize: '0.875rem', color: 'var(--text-tertiary)' }}>Chưa rõ DT</span>
+              )}
+            </div>
           </div>
         </div>
       </div>
