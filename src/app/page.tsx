@@ -1,65 +1,89 @@
-import Image from "next/image";
+'use client';
+
+import { useEffect, useState } from 'react';
+import HouseCard, { House } from '@/components/HouseCard';
+import Link from 'next/link';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 export default function Home() {
+  const [houses, setHouses] = useState<House[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchHouses = async () => {
+      try {
+        console.log("Đang gọi Firebase Firestore...");
+        const querySnapshot = await getDocs(collection(db, 'houses'));
+        console.log("Đã lấy được dữ liệu Firestore!");
+        const housesData: House[] = [];
+        querySnapshot.forEach((doc) => {
+          housesData.push({ id: doc.id, ...doc.data() } as House);
+        });
+        setHouses(housesData);
+      } catch (err: any) {
+        console.error("Lỗi khi tải nhà: ", err);
+        setError(err.message || "Không thể kết nối đến Database. Bạn đã bật Firestore Database trong Firebase Console chưa?");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHouses();
+  }, []);
+
+  if (loading) {
+    return <div className="flex justify-center items-center" style={{ minHeight: '50vh' }}>Đang tải dữ liệu... (Vui lòng đợi hoặc kiểm tra Console báo lỗi)</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col justify-center items-center gap-4" style={{ minHeight: '50vh', color: 'var(--danger)' }}>
+        <h2>❌ Đã xảy ra lỗi</h2>
+        <p>{error}</p>
+        <div style={{ maxWidth: '600px', backgroundColor: 'var(--bg-secondary)', padding: '1rem', borderRadius: '8px', color: 'var(--text-primary)' }}>
+          <p><strong>Gợi ý sửa lỗi:</strong></p>
+          <ol style={{ paddingLeft: '1.5rem' }}>
+            <li>Vào <a href="https://console.firebase.google.com/" target="_blank" style={{textDecoration: 'underline'}}>Firebase Console</a>.</li>
+            <li>Chọn dự án <strong>nhatdat-56d50</strong>.</li>
+            <li>Ở menu bên trái, chọn <strong>Build &gt; Firestore Database</strong>.</li>
+            <li>Bấm <strong>Create database</strong> (Chọn Test mode để dễ sử dụng).</li>
+            <li>Khởi động lại server bằng cách nhấn <code>Ctrl + C</code> rồi gõ lại <code>npm run dev</code>.</li>
+          </ol>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div>
+      <div className="flex justify-between items-center" style={{ marginBottom: '2rem' }}>
+        <div>
+          <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Danh sách nhà đang xem xét</h1>
+          <p style={{ color: 'var(--text-secondary)' }}>Bạn đã lưu {houses.length} căn nhà.</p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <Link href="/add" className="btn btn-primary">
+          + Thêm Nhà Mới
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {houses.map(house => (
+          <HouseCard key={house.id} house={house} />
+        ))}
+      </div>
+      
+      {houses.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '4rem', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)' }}>
+          <span style={{ fontSize: '3rem', display: 'block', marginBottom: '1rem' }}>📭</span>
+          <h3>Chưa có dữ liệu</h3>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>Bạn chưa lưu căn nhà nào. Hãy bắt đầu tìm kiếm!</p>
+          <Link href="/add" className="btn btn-primary">
+            Thêm Nhà Mới Ngay
+          </Link>
         </div>
-      </main>
+      )}
     </div>
   );
 }
