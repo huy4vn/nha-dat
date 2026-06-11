@@ -15,7 +15,7 @@ export default function AddHousePage() {
     description: '',
     price: '',
     area: '',
-    type: 'Chung cư mini',
+    type: 'Nhà đất',
     imageUrls: [] as string[],
   });
 
@@ -136,9 +136,9 @@ export default function AddHousePage() {
             onChange={handleChange as any}
             style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
           >
+            <option value="Nhà đất">Nhà đất</option>
             <option value="Chung cư mini">Chung cư mini</option>
             <option value="Chung cư">Chung cư</option>
-            <option value="Nhà đất">Nhà đất</option>
             <option value="Phòng trọ">Phòng trọ</option>
             <option value="Khác">Khác</option>
           </select>
