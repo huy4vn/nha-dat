@@ -79,6 +79,20 @@ export default function AddHousePage() {
     return '';
   };
 
+  const deleteImagesFromCloudinary = async (urls: string[]) => {
+    for (const url of urls) {
+      try {
+        await fetch('/api/delete-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+      } catch (err) {
+        console.error("Failed to delete image:", url, err);
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -212,7 +226,10 @@ export default function AddHousePage() {
                   <img src={url} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }} />
                   <button 
                     type="button" 
-                    onClick={() => setFormData(prev => ({ ...prev, imageUrls: prev.imageUrls.filter((_, i) => i !== idx) }))}
+                    onClick={async () => {
+                      setFormData(prev => ({ ...prev, imageUrls: prev.imageUrls.filter((_, i) => i !== idx) }));
+                      await deleteImagesFromCloudinary([url]);
+                    }}
                     style={{ position: 'absolute', top: '0.25rem', right: '0.25rem', backgroundColor: 'var(--danger)', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                   >
                     ×
@@ -247,7 +264,13 @@ export default function AddHousePage() {
         </div>
 
         <div className="flex gap-4 justify-end">
-          <button type="button" onClick={() => router.push('/')} className="btn btn-secondary" disabled={loading}>
+          <button type="button" onClick={async () => {
+            if (formData.imageUrls.length > 0) {
+              setLoading(true);
+              await deleteImagesFromCloudinary(formData.imageUrls);
+            }
+            router.push('/');
+          }} className="btn btn-secondary" disabled={loading}>
             Hủy
           </button>
           <button type="submit" className="btn btn-primary" disabled={loading}>

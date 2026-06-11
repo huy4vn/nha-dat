@@ -15,6 +15,9 @@ export default function EditHousePage() {
   const [saving, setSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   
+  const [removedImages, setRemovedImages] = useState<string[]>([]);
+  const [newlyUploadedImages, setNewlyUploadedImages] = useState<string[]>([]);
+  
   const [formData, setFormData] = useState({
     address: '',
     description: '',
@@ -81,6 +84,7 @@ export default function EditHousePage() {
       const data = await res.json();
       if (data.secure_url) {
         setFormData(prev => ({ ...prev, imageUrls: [...prev.imageUrls, data.secure_url] }));
+        setNewlyUploadedImages(prev => [...prev, data.secure_url]);
       }
     } catch (error) {
       console.error("Lỗi upload ảnh:", error);
@@ -120,6 +124,20 @@ export default function EditHousePage() {
     return '';
   };
 
+  const deleteImagesFromCloudinary = async (urls: string[]) => {
+    for (const url of urls) {
+      try {
+        await fetch('/api/delete-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+      } catch (err) {
+        console.error("Failed to delete image:", url, err);
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -135,6 +153,11 @@ export default function EditHousePage() {
         type: formData.type,
         imageUrls: formData.imageUrls,
       });
+      
+      if (removedImages.length > 0) {
+        await deleteImagesFromCloudinary(removedImages);
+      }
+      
       router.push('/');
     } catch (error) {
       console.error("Error updating document: ", error);
@@ -148,6 +171,9 @@ export default function EditHousePage() {
     if (confirm('Bạn có chắc chắn muốn XÓA VĨNH VIỄN căn nhà này không?')) {
       setIsDeleting(true);
       try {
+        if (formData.imageUrls && formData.imageUrls.length > 0) {
+          await deleteImagesFromCloudinary(formData.imageUrls);
+        }
         await deleteDoc(doc(db, 'houses', id));
         router.push('/');
       } catch (error) {
@@ -272,7 +298,10 @@ export default function EditHousePage() {
                   <img src={url} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }} />
                   <button 
                     type="button" 
-                    onClick={() => setFormData(prev => ({ ...prev, imageUrls: prev.imageUrls.filter((_, i) => i !== idx) }))}
+                    onClick={() => {
+                      setRemovedImages(prev => [...prev, url]);
+                      setFormData(prev => ({ ...prev, imageUrls: prev.imageUrls.filter((_, i) => i !== idx) }));
+                    }}
                     style={{ position: 'absolute', top: '0.25rem', right: '0.25rem', backgroundColor: 'var(--danger)', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                   >
                     ×
@@ -289,6 +318,7 @@ export default function EditHousePage() {
               if (typeof result.info === 'object' && 'secure_url' in result.info) {
                 const url = result.info.secure_url;
                 setFormData(prev => ({ ...prev, imageUrls: [...prev.imageUrls, url] }));
+                setNewlyUploadedImages(prev => [...prev, url]);
               }
             }}
           >
@@ -303,7 +333,13 @@ export default function EditHousePage() {
         </div>
 
         <div className="flex gap-4 justify-end">
-          <button type="button" onClick={() => router.push('/')} className="btn btn-secondary" disabled={saving}>
+          <button type="button" onClick={async () => {
+            if (newlyUploadedImages.length > 0) {
+              setSaving(true);
+              await deleteImagesFromCloudinary(newlyUploadedImages);
+            }
+            router.push('/');
+          }} className="btn btn-secondary" disabled={saving}>
             Hủy
           </button>
           <button type="submit" className="btn btn-primary" disabled={saving}>
