@@ -93,6 +93,18 @@ export default function AddHousePage() {
     }
   };
 
+  const moveImage = (index: number, direction: 'left' | 'right') => {
+    setFormData(prev => {
+      const newUrls = [...prev.imageUrls];
+      if (direction === 'left' && index > 0) {
+        [newUrls[index - 1], newUrls[index]] = [newUrls[index], newUrls[index - 1]];
+      } else if (direction === 'right' && index < newUrls.length - 1) {
+        [newUrls[index + 1], newUrls[index]] = [newUrls[index], newUrls[index + 1]];
+      }
+      return { ...prev, imageUrls: newUrls };
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -237,9 +249,30 @@ export default function AddHousePage() {
                         await deleteImagesFromCloudinary([url]);
                       }}
                       style={{ position: 'absolute', top: '0.25rem', right: '0.25rem', backgroundColor: 'var(--danger)', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      title="Xóa"
                     >
                       ×
                     </button>
+                    {idx > 0 && (
+                      <button 
+                        type="button" 
+                        onClick={() => moveImage(idx, 'left')}
+                        style={{ position: 'absolute', bottom: '0.25rem', left: '0.25rem', backgroundColor: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '4px', padding: '2px 6px', cursor: 'pointer', fontSize: '12px' }}
+                        title="Sang trái"
+                      >
+                        ◀
+                      </button>
+                    )}
+                    {idx < formData.imageUrls.length - 1 && (
+                      <button 
+                        type="button" 
+                        onClick={() => moveImage(idx, 'right')}
+                        style={{ position: 'absolute', bottom: '0.25rem', right: '0.25rem', backgroundColor: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '4px', padding: '2px 6px', cursor: 'pointer', fontSize: '12px' }}
+                        title="Sang phải"
+                      >
+                        ▶
+                      </button>
+                    )}
                   </div>
                 );
               })}
