@@ -33,7 +33,7 @@ export default function AddHousePage() {
       fd.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || '');
       fd.append('folder', 'nha-dat');
 
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/auto/upload`, {
         method: 'POST',
         body: fd
       });
@@ -54,8 +54,8 @@ export default function AddHousePage() {
     if (!items) return;
 
     for (let i = 0; i < items.length; i++) {
-      if (items[i].type.indexOf('image') !== -1) {
-        e.preventDefault(); // Prevent default paste if we found an image
+      if (items[i].type.indexOf('image') !== -1 || items[i].type.indexOf('video') !== -1) {
+        e.preventDefault(); // Prevent default paste if we found an image or video
         const file = items[i].getAsFile();
         if (file) {
           await uploadToCloudinary(file);
@@ -221,27 +221,34 @@ export default function AddHousePage() {
           
           {formData.imageUrls.length > 0 && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '0.5rem', marginBottom: '1rem' }}>
-              {formData.imageUrls.map((url, idx) => (
-                <div key={idx} style={{ position: 'relative', aspectRatio: '1 / 1' }}>
-                  <img src={url} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }} />
-                  <button 
-                    type="button" 
-                    onClick={async () => {
-                      setFormData(prev => ({ ...prev, imageUrls: prev.imageUrls.filter((_, i) => i !== idx) }));
-                      await deleteImagesFromCloudinary([url]);
-                    }}
-                    style={{ position: 'absolute', top: '0.25rem', right: '0.25rem', backgroundColor: 'var(--danger)', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
+              {formData.imageUrls.map((url, idx) => {
+                const isVideo = url.match(/\.(mp4|webm|ogg)$/i) || url.includes('/video/upload/');
+                return (
+                  <div key={idx} style={{ position: 'relative', aspectRatio: '1 / 1' }}>
+                    {isVideo ? (
+                      <video src={url} autoPlay muted loop playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }} />
+                    ) : (
+                      <img src={url} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }} />
+                    )}
+                    <button 
+                      type="button" 
+                      onClick={async () => {
+                        setFormData(prev => ({ ...prev, imageUrls: prev.imageUrls.filter((_, i) => i !== idx) }));
+                        await deleteImagesFromCloudinary([url]);
+                      }}
+                      style={{ position: 'absolute', top: '0.25rem', right: '0.25rem', backgroundColor: 'var(--danger)', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           )}
           
           <CldUploadWidget 
             uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
-            options={{ folder: 'nha-dat', multiple: true }}
+            options={{ folder: 'nha-dat', multiple: true, resourceType: 'auto' }}
             onSuccess={(result) => {
               if (typeof result.info === 'object' && 'secure_url' in result.info) {
                 const url = result.info.secure_url;

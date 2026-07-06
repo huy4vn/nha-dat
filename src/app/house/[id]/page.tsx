@@ -76,20 +76,37 @@ export default function HouseDetailPage() {
       <div className="glass" style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
         {/* Image Gallery */}
         <div style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch', backgroundColor: '#000', height: '400px' }}>
-          {house.imageUrls.map((img: string, idx: number) => (
-            <div 
-              key={idx} 
-              style={{ 
-                minWidth: '100%', 
-                height: '100%',
-                backgroundImage: `url(${img})`, 
-                backgroundSize: 'contain',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-                scrollSnapAlign: 'start' 
-              }} 
-            />
-          ))}
+          {house.imageUrls.map((img: string, idx: number) => {
+            const isVideo = img.match(/\.(mp4|webm|ogg)$/i) || img.includes('/video/upload/');
+            return isVideo ? (
+              <video 
+                key={idx} 
+                src={img}
+                controls
+                playsInline
+                style={{ 
+                  minWidth: '100%', 
+                  height: '100%',
+                  objectFit: 'contain',
+                  scrollSnapAlign: 'start',
+                  backgroundColor: '#000'
+                }} 
+              />
+            ) : (
+              <div 
+                key={idx} 
+                style={{ 
+                  minWidth: '100%', 
+                  height: '100%',
+                  backgroundImage: `url(${img})`, 
+                  backgroundSize: 'contain',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat',
+                  scrollSnapAlign: 'start' 
+                }} 
+              />
+            );
+          })}
         </div>
         {house.imageUrls.length > 1 && (
           <div style={{ textAlign: 'center', padding: '0.5rem', backgroundColor: 'var(--bg-tertiary)', fontSize: '0.875rem' }}>

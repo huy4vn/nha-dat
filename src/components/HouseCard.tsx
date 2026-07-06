@@ -73,17 +73,35 @@ export default function HouseCard({ house }: HouseCardProps) {
       
       <div className="house-images-wrapper">
         <div className="house-images-container" style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}>
-          {images.map((img, idx) => (
-            <div 
-              key={idx} 
-              className="house-image" 
-              style={{ 
-                minWidth: '100%', 
-                backgroundImage: `url(${img})`, 
-                scrollSnapAlign: 'start' 
-              }} 
-            />
-          ))}
+          {images.map((img, idx) => {
+            const isVideo = img.match(/\.(mp4|webm|ogg)$/i) || img.includes('/video/upload/');
+            return isVideo ? (
+              <video 
+                key={idx}
+                src={img}
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="house-image"
+                style={{
+                  minWidth: '100%',
+                  objectFit: 'cover',
+                  scrollSnapAlign: 'start'
+                }}
+              />
+            ) : (
+              <div 
+                key={idx} 
+                className="house-image" 
+                style={{ 
+                  minWidth: '100%', 
+                  backgroundImage: `url(${img})`, 
+                  scrollSnapAlign: 'start' 
+                }} 
+              />
+            );
+          })}
         </div>
         
         {images.length > 1 && (
